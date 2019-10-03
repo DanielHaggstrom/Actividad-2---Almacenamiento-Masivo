@@ -6,7 +6,7 @@ from Slave import Slave
 ############################################
 
 SLAVE_NUM = 100  # Numero de nodos esclavos a simular
-SLAVE_MEMORY = 64  # Tamanyo maximo de la memoria de cada nodo esclavo
+SLAVE_MEMORY = 4  # Tamanyo maximo de la memoria de cada nodo esclavo
 MASTER_MEMBLOCK = 16  # Tamanyo del bloque de memoria de la base de datos, expresado en numero de caracteres
 
 slaveNodes = {"S" + str(k): Slave("S" + str(k), SLAVE_MEMORY) for k in range(0, SLAVE_NUM)}

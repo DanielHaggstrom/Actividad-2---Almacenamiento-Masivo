@@ -22,5 +22,5 @@ class Slave:
         texto = ""
         for argument in args:
             for item in argument:
-                texto = texto + " " + item
+                texto = texto + item
         self.database = texto

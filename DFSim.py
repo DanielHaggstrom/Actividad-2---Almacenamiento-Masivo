@@ -40,6 +40,13 @@ commands = {
     "escribir": write
 }
 
+
+def escribir(texto):
+    write(texto)
+
+def leer():
+    read()
+
 out = False
 
 # Bucle principal de ejecucion

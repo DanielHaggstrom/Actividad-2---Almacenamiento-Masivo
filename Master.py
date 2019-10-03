@@ -15,8 +15,18 @@ class Master:
     #       MODIFICAR A PARTIR DE AQUI         #
     ############################################
 
-    def read(self, *args):
-        return None
+    # ESTAMOS TRABAJANDO BAJO LA SUPOSICION CASO 1: SECUENCIA
 
-    def write(self, *args):
-        return None
+    def read(self, *args):
+        st = ""
+        for slave in self.slaveDB:
+            st = st + slave.read()
+        return st
+
+    def write(self, text):
+        counter = 0
+        for slave in self.slaveDB:
+            start = counter * slave.memory
+            end = start + slave.memory
+            slave.write(text[start:end])
+            counter = counter + 1

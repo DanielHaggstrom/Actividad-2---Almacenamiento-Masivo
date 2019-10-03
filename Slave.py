@@ -15,8 +15,8 @@ class Slave:
     #       MODIFICAR A PARTIR DE AQUI         #
     ############################################
 
-    def read(self, *args):
-        return None
+    def read(self):
+        return self.database
 
-    def write(self, *args):
-        return None
+    def write(self, text):
+        self.database = text

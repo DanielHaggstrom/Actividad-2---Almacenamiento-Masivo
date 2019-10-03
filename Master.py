@@ -28,3 +28,6 @@ class Master:
             start = c * slave.memory
             end = start + slave.memory
             slave.write(*args[start:end])
+
+    def erase(self):
+        self.write("")

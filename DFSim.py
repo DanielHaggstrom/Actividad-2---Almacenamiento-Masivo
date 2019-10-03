@@ -34,10 +34,14 @@ def write(*args):
 ############################################
 # En esta seccion se pueden incluir nuevos comandos como "def write" o similares
 
+def erase(*args):
+    masterNode.erase()
+
 commands = {
     "salir": quit,
     "leer": read,
-    "escribir": write
+    "escribir": write,
+    "borrar": erase
 }
 
 out = False

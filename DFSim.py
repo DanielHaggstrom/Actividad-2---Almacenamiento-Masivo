@@ -42,10 +42,10 @@ commands = {
 
 
 def escribir(texto):
-    masterNode.write(texto)
+    write(texto)
 
 def leer():
-    masterNode.read()
+    read()
 
 out = False
 

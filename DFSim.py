@@ -40,6 +40,13 @@ commands = {
     "escribir": write
 }
 
+
+def escribir(texto):
+    masterNode.write(texto)
+
+def leer():
+    masterNode.read()
+
 out = False
 
 # Bucle principal de ejecucion

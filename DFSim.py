@@ -21,7 +21,7 @@ def quit(args):
 # Comando de lectura de un fichero almacenado en el DFS
 def read(*args):
     text = masterNode.read(*args)
-    return text
+    print(text)
 
 
 # Comando de escritura de un fichero almacenado al DFS
@@ -39,13 +39,6 @@ commands = {
     "leer": read,
     "escribir": write
 }
-
-
-def escribir(texto):
-    write(texto)
-
-def leer():
-    read()
 
 out = False
 

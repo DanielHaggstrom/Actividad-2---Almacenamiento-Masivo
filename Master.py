@@ -20,13 +20,11 @@ class Master:
     def read(self, *args):
         st = ""
         for slave in self.slaveDB.values():
-            st = st + slave.read()
+            st = st + slave.database
         return st
 
-    def write(self, text):
-        counter = 0
-        for slave in self.slaveDB.values():
-            start = counter * slave.memory
+    def write(self, *args):
+        for c, slave in enumerate(list(self.slaveDB.values())):
+            start = c * slave.memory
             end = start + slave.memory
-            slave.write(text[start:end])
-            counter = counter + 1
+            slave.write(*args[start:end])

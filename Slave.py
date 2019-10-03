@@ -18,5 +18,9 @@ class Slave:
     def read(self):
         return self.database
 
-    def write(self, text):
-        self.database = text
+    def write(self, *args):
+        texto = ""
+        for argument in args:
+            for item in argument:
+                texto = texto + " " + item
+        self.database = texto

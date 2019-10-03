@@ -18,15 +18,24 @@ class Master:
     # ESTAMOS TRABAJANDO BAJO LA SUPOSICION CASO 1: SECUENCIA
 
     def read(self, *args):
-        st = ""
+        texto = ""
         for slave in self.slaveDB.values():
-            st = st + slave.read()
-        return st
+            texto = texto + slave.database
+        return texto
 
-    def write(self, text):
-        counter = 0
+    def write(self, *args):
+        self.erase()
+        texto = ""
+        for item in list(*args):
+            texto = texto + " " + item
+        texto = texto[1:]
+        numSlaves = len(texto)//list(self.slaveDB.values())[0].memory +\
+                    (len(texto) % list(self.slaveDB.values())[0].memory > 0)
+        for c, i in enumerate(range(numSlaves)):
+            start = c * self.slaveDB["S0"].memory
+            end = start + self.slaveDB["S0"].memory
+            self.slaveDB["S" + str(i)].write(texto[start:end])
+
+    def erase(self):
         for slave in self.slaveDB.values():
-            start = counter * slave.memory
-            end = start + slave.memory
-            slave.write(text[start:end])
-            counter = counter + 1
+            slave.database = ""

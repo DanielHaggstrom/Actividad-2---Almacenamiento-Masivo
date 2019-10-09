@@ -15,27 +15,24 @@ class Master:
     #       MODIFICAR A PARTIR DE AQUI         #
     ############################################
 
-    # ESTAMOS TRABAJANDO BAJO LA SUPOSICION CASO 1: SECUENCIA
+    # ESTAMOS TRABAJANDO BAJO LA SUPOSICION CASO 1: SECUENCIAL
 
     def read(self, *args):
         texto = ""
         for slave in self.slaveDB.values():
-            texto = texto + slave.database
+            texto = texto + slave.read()
         return texto
 
     def write(self, *args):
-        self.erase()
         texto = ""
         for item in list(*args):
             texto = texto + " " + item
         texto = texto[1:]
-        numSlaves = len(texto)//list(self.slaveDB.values())[0].memory +\
-                    (len(texto) % list(self.slaveDB.values())[0].memory > 0)
-        for c, i in enumerate(range(numSlaves)):
-            start = c * self.slaveDB["S0"].memory
-            end = start + self.slaveDB["S0"].memory
-            self.slaveDB["S" + str(i)].write(texto[start:end])
+        for slave in self.slaveDB.values():
+            while not slave.isFull() and len(texto) > 0:
+                slave.write(texto[0])
+                texto = texto[1:]
 
     def erase(self):
         for slave in self.slaveDB.values():
-            slave.database = ""
+            slave.erase()

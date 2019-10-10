@@ -15,10 +15,13 @@ class Slave:
     #       MODIFICAR A PARTIR DE AQUI         #
     ############################################
 
-    def read(self):
+    def read(self, archivo):  # todo debería devolver únicamente los bloques que se requieren
+        block_list = [self.database[i:i + self.memory]
+                      for i in range(0, len(self.database), self.memoryBlock)]
+        answer_list = [item[3:] for item in block_list if item[:2] == archivo]  # asume una clave de 4 caracteres
         return self.database
 
-    def write(self, *args):
+    def write(self, *args):  # todo en caso de no poderse escribir, no debería ni intentarlo
         aux = 1
         if not self.isFull():
             for argument in args:
@@ -33,6 +36,7 @@ class Slave:
         else:
             return False
 
-    def erase(self):
-        self.database = ""
+    def erase(self):  # todo debería borrar sólo lo que se pide
+        block_list = [self.database[i:i + self.memory]
+                      for i in range(0, len(self.database), self.memoryBlock)]
         return 0

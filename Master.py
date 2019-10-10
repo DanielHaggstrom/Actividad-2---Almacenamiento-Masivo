@@ -23,16 +23,26 @@ class Master:
             texto = texto + slave.read()
         return texto
 
-    def write(self, *args):
-        texto = ""
-        for item in list(*args):
-            texto = texto + " " + item
-        texto = texto[1:]
+    def write(self, texto):
+        aux = 0
         for slave in self.slaveDB.values():
             while not slave.isFull() and len(texto) > 0:
-                slave.write(texto[0])
+                aux = aux + slave.write(texto[0])
                 texto = texto[1:]
+        return aux + len(texto)
 
     def erase(self):
+        aux = 0
         for slave in self.slaveDB.values():
-            slave.erase()
+            aux = aux + slave.erase()
+        if aux == 0:
+            # todo
+            return "ok"  # hay que hacer algo para evitar que la frase escrita 'ok' se confunda
+        else:
+            return "Fallo de borrado"
+
+    def isFull(self):
+        if len(self.database) >= self.memoryBlock:
+            return True
+        else:
+            return False

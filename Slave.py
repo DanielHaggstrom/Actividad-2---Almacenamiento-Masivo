@@ -19,10 +19,13 @@ class Slave:
         return self.database
 
     def write(self, *args):
+        aux = 1
         if not self.isFull():
             for argument in args:
                 for item in argument:
                     self.database = self.database + item
+            aux = 0
+        return aux
 
     def isFull(self):
         if len(self.database) >= self.memory:
@@ -32,3 +35,4 @@ class Slave:
 
     def erase(self):
         self.database = ""
+        return 0

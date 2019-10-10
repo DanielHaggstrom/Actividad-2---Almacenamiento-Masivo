@@ -6,7 +6,7 @@ from Slave import Slave
 ############################################
 
 SLAVE_NUM = 100  # Numero de nodos esclavos a simular
-SLAVE_MEMORY = 4  # Tamanyo maximo de la memoria de cada nodo esclavo
+SLAVE_MEMORY = 64  # Tamanyo maximo de la memoria de cada nodo esclavo
 MASTER_MEMBLOCK = 16  # Tamanyo del bloque de memoria de la base de datos, expresado en numero de caracteres
 
 slaveNodes = {"S" + str(k): Slave("S" + str(k), SLAVE_MEMORY) for k in range(0, SLAVE_NUM)}
@@ -20,13 +20,28 @@ def quit(args):
 
 # Comando de lectura de un fichero almacenado en el DFS
 def read(*args):
-    text = masterNode.read(*args)
-    print(text)
+    return masterNode.read(*args)
 
 
 # Comando de escritura de un fichero almacenado al DFS
 def write(*args):
-    masterNode.write(*args)
+    texto = ""
+    for item in list(*args):
+        texto = texto + " " + item
+    texto = texto[1:]
+    aux = True
+    answer = 0
+    while len(texto) > 0 and aux:
+        if not masterNode.isFull():
+            answer = answer + masterNode.write(texto[0:MASTER_MEMBLOCK])
+            texto = texto[MASTER_MEMBLOCK:]
+        else:
+            aux = False
+    if answer == 0:
+        # todo
+        return "ok"  # hay que hacer algo para evitar que la frase escrita 'ok' se confunda
+    else:
+        return "Fallo de escritura"
 
 
 ############################################
@@ -35,7 +50,7 @@ def write(*args):
 # En esta seccion se pueden incluir nuevos comandos como "def write" o similares
 
 def erase(*args):
-    masterNode.erase()
+    return masterNode.erase()
 
 commands = {
     "salir": quit,
@@ -61,3 +76,5 @@ while not out:
 
     if output is "quit":
         out = True  # Salir del programa
+    elif output != "none" and output != "ok":
+        print(output)

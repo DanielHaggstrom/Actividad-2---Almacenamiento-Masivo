@@ -23,11 +23,7 @@ class Master:
             texto = texto + slave.read()
         return texto
 
-    def write(self, *args):
-        texto = ""
-        for item in list(*args):
-            texto = texto + " " + item
-        texto = texto[1:]
+    def write(self, texto):
         for slave in self.slaveDB.values():
             while not slave.isFull() and len(texto) > 0:
                 slave.write(texto[0])
@@ -36,3 +32,9 @@ class Master:
     def erase(self):
         for slave in self.slaveDB.values():
             slave.erase()
+
+    def isFull(self):
+        if len(self.database) >= self.memoryBlock:
+            return True
+        else:
+            return False

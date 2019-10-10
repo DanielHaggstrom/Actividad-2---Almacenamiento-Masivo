@@ -24,14 +24,29 @@ class Master:
         return texto
 
     def write(self, texto):
+<<<<<<< HEAD
+        aux = 0
+=======
+>>>>>>> master
         for slave in self.slaveDB.values():
             while not slave.isFull() and len(texto) > 0:
-                slave.write(texto[0])
+                aux = aux + slave.write(texto[0])
                 texto = texto[1:]
+        return aux + len(texto)
 
     def erase(self):
+        aux = 0
         for slave in self.slaveDB.values():
+<<<<<<< HEAD
+            aux = aux + slave.erase()
+        if aux == 0:
+            # todo
+            return "ok"  # hay que hacer algo para evitar que la frase escrita 'ok' se confunda
+        else:
+            return "Fallo de borrado"
+=======
             slave.erase()
+>>>>>>> master
 
     def isFull(self):
         if len(self.database) >= self.memoryBlock:

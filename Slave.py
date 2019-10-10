@@ -19,8 +19,16 @@ class Slave:
         return self.database
 
     def write(self, *args):
-        texto = ""
-        for argument in args:
-            for item in argument:
-                texto = texto + item
-        self.database = texto
+        if not self.isFull():
+            for argument in args:
+                for item in argument:
+                    self.database = self.database + item
+
+    def isFull(self):
+        if len(self.database) >= self.memory:
+            return True
+        else:
+            return False
+
+    def erase(self):
+        self.database = ""

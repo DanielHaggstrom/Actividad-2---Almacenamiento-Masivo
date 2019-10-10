@@ -30,6 +30,7 @@ def write(*args):
         texto = texto + " " + item
     texto = texto[1:]
     aux = True
+<<<<<<< HEAD
     answer = 0
     while len(texto) > 0 and aux:
         if not masterNode.isFull():
@@ -42,6 +43,14 @@ def write(*args):
         return "ok"  # hay que hacer algo para evitar que la frase escrita 'ok' se confunda
     else:
         return "Fallo de escritura"
+=======
+    while len(texto) > 0 and aux:
+        if not masterNode.isFull():
+            masterNode.write(texto[0:MASTER_MEMBLOCK])
+            texto = texto[MASTER_MEMBLOCK:]
+        else:
+            aux = False
+>>>>>>> master
 
 
 ############################################

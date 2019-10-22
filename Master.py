@@ -19,24 +19,37 @@ class Master:
 
     def read(self, archivo):
         # pide a los nodos esclavos que le den los bloques correspondientes, y los ordena, y los junta, y lo devuelve
-        block_list = []
+        block_lists = []
         for slave in self.slaveDB.values():
-            block_list.append(slave.read(archivo))
-        # todo ordenar la lista, eliminando los metadatos
+            print(slave.read("1", self.memoryBlock))
+            block_lists.append(slave.read("1", self.memoryBlock))
+        # se ordena la lista. En nuestro caso, no hace falta
+        # se junta en un string, eliminando los metadatos
         texto = ""
-        for item in block_list:
-            texto = texto + item
+        for list in block_lists:
+            for item in list:
+                texto = texto + item[1:]
         return texto
 
-    def write(self, archivo, texto):
+    def write(self, args):
         # divide el texto en bloques de tamaño memoryBlock - clave,
         # les añade la clave y los escribe en los nodos esclavos
-        clave_length = 4
+        texto = ' '.join(args)
+        clave_length = 1  # la clave define el número de archivo. De momento, lo hardcodeamos a 1
         block_list = [texto[i:i+self.memoryBlock - clave_length]
                       for i in range(0, len(texto), self.memoryBlock - clave_length)]
-        # todo sumar la clave en cada bloque
-        # todo escribir en slave
-        return None
+        # todo debería comprobar si hay espacio para realizar la operacion
+        result = "Datos guardados"
+        # rellenamos el último bloque con espacios
+        if len(block_list[-1]) + clave_length < self.memoryBlock:
+            dif = self.memoryBlock - len(block_list[-1]) - clave_length
+            padding = " " * dif
+            block_list[-1] = block_list[-1] + padding
+        for slave in self.slaveDB.values():
+            while not slave.isFull() and len(block_list) > 0:
+                slave.write("1" + block_list[0])  # clave hardcodeada, "1"
+                block_list.pop(0)
+        return result
 
     def erase(self, archivo):
         # todo borrar los bloques del archivo especificado

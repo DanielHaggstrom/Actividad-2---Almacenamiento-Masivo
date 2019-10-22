@@ -15,18 +15,17 @@ class Slave:
     #       MODIFICAR A PARTIR DE AQUI         #
     ############################################
 
-    def read(self, archivo):  # todo debería devolver únicamente los bloques que se requieren
+    def read(self, clave, memoryBlock):
         block_list = [self.database[i:i + self.memory]
-                      for i in range(0, len(self.database), self.memoryBlock)]
-        answer_list = [item[3:] for item in block_list if item[:2] == archivo]  # asume una clave de 4 caracteres
-        return self.database
+                      for i in range(0, len(self.database), memoryBlock)]
+        answer_list = [block for block in block_list if block[0] == clave]  # slave no elimina la clave
+        return answer_list
 
-    def write(self, *args):  # todo en caso de no poderse escribir, no debería ni intentarlo
+    def write(self, texto):
+        # devuelve 1 si no se logra ejecutar
         aux = 1
         if not self.isFull():
-            for argument in args:
-                for item in argument:
-                    self.database = self.database + item
+            self.database = self.database + texto
             aux = 0
         return aux
 

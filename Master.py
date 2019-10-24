@@ -19,15 +19,16 @@ class Master:
 
     def read(self, archivo):
         # pide a los nodos esclavos que le den los bloques correspondientes, y los ordena, y los junta, y lo devuelve
-        block_lists = []
+        block_list = []
         for slave in self.slaveDB.values():
-            answer = slave.read("1")
+            answer = slave.read("1", self.memoryBlock)
             if len(answer) != 0:
-                block_lists.append(answer)
+                block_list.extend(answer)
         # se ordena la lista. En nuestro caso, no hace falta
         # se junta en un string, eliminando los metadatos
-        print(block_lists)
         texto = ""
+        for item in block_list:
+            texto = texto + item[1:]
         return texto
 
     def write(self, args):

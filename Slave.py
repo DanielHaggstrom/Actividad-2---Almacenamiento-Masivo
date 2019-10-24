@@ -15,11 +15,10 @@ class Slave:
     #       MODIFICAR A PARTIR DE AQUI         #
     ############################################
 
-    def read(self, clave):
-        block_list = [self.database[i:i + self.memory]
-                      for i in range(0, len(self.database), self.memory)]
+    def read(self, clave, block_length):
+        block_list = [self.database[i:i + block_length]
+                      for i in range(0, len(self.database), block_length)]
         answer_list = [block for block in block_list if block[0] == clave]  # slave no elimina la clave
-        print(answer_list)
         return answer_list
 
     def write(self, texto):

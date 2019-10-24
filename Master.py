@@ -34,7 +34,14 @@ class Master:
     def write(self, args):
         # divide el texto en bloques de tamaño memoryBlock - clave,
         # les añade la clave y los escribe en los nodos esclavos
-        texto = ' '.join(args)
+        try:
+            f = open(' '.join(args))
+        except:
+            return "Error. No se encontró el archivo"
+        texto = f.read()
+        if len(texto) > len(self.slaveDB) * self.slaveDB["S0"].memory:
+            print("El texto tiene "+ str(len(texto)) + " y hay " + str(len(self.slaveDB)) + " nodos, de " + str(self.slaveDB["S000"].memory) + " cada uno")
+            return "Error de memoria"
         clave_length = 1  # la clave define el número de archivo. De momento, lo hardcodeamos a 1
         block_list = [texto[i:i+self.memoryBlock - clave_length]
                       for i in range(0, len(texto), self.memoryBlock - clave_length)]

@@ -6,8 +6,8 @@ from Slave import Slave
 ############################################
 
 SLAVE_NUM = 100  # Numero de nodos esclavos a simular
-SLAVE_MEMORY = 64  # Tamanyo maximo de la memoria de cada nodo esclavo
-MASTER_MEMBLOCK = 16  # Tamanyo del bloque de memoria de la base de datos, expresado en numero de caracteres
+SLAVE_MEMORY = 16  # Tamanyo maximo de la memoria de cada nodo esclavo
+MASTER_MEMBLOCK = 8  # Tamanyo del bloque de memoria de la base de datos, expresado en numero de caracteres
 
 slaveNodes = {"S" + str(k).zfill(3): Slave("S" + str(k).zfill(3), SLAVE_MEMORY) for k in range(0, SLAVE_NUM)}  # Pequeña modificación, para que id tenga la misma longitud
 masterNode = Master(slaveNodes, MASTER_MEMBLOCK)
@@ -26,7 +26,7 @@ def read(*args):
 
 # Comando de escritura de un fichero almacenado al DFS
 def write(*args):
-    masterNode.write(*args)
+    return masterNode.write(*args)
 
 
 ############################################
@@ -37,11 +37,15 @@ def write(*args):
 def erase(*args):
     masterNode.erase(*args)
 
+def debug(*args):
+    masterNode.debug()
+
 commands = {
     "salir": quit,
     "leer": read,
     "escribir": write,
-    "borrar": erase
+    "borrar": erase,
+    "debug": debug
 }
 
 out = False

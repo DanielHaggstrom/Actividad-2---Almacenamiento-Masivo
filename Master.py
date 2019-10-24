@@ -21,14 +21,13 @@ class Master:
         # pide a los nodos esclavos que le den los bloques correspondientes, y los ordena, y los junta, y lo devuelve
         block_lists = []
         for slave in self.slaveDB.values():
-            print(slave.read("1", self.memoryBlock))
-            block_lists.append(slave.read("1", self.memoryBlock))
+            answer = slave.read("1")
+            if len(answer) != 0:
+                block_lists.append(answer)
         # se ordena la lista. En nuestro caso, no hace falta
         # se junta en un string, eliminando los metadatos
+        print(block_lists)
         texto = ""
-        for list in block_lists:
-            for item in list:
-                texto = texto + item[1:]
         return texto
 
     def write(self, args):
@@ -52,5 +51,12 @@ class Master:
         return result
 
     def erase(self, archivo):
-        # todo borrar los bloques del archivo especificado
+        # todo debería borrar solo el archivo especificado
+        for slave in self.slaveDB.values():
+            slave.erase()
         return None
+
+    def debug(self):
+        for slave in self.slaveDB.values():
+            if slave.database != "":
+                print(slave.id + " " + slave.database)

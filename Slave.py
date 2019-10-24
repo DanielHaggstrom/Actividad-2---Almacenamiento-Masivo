@@ -15,10 +15,11 @@ class Slave:
     #       MODIFICAR A PARTIR DE AQUI         #
     ############################################
 
-    def read(self, clave, memoryBlock):
+    def read(self, clave):
         block_list = [self.database[i:i + self.memory]
-                      for i in range(0, len(self.database), memoryBlock)]
+                      for i in range(0, len(self.database), self.memory)]
         answer_list = [block for block in block_list if block[0] == clave]  # slave no elimina la clave
+        print(answer_list)
         return answer_list
 
     def write(self, texto):
@@ -36,6 +37,5 @@ class Slave:
             return False
 
     def erase(self):  # todo debería borrar sólo lo que se pide
-        block_list = [self.database[i:i + self.memory]
-                      for i in range(0, len(self.database), self.memoryBlock)]
+        self.database = ""
         return 0

@@ -84,7 +84,9 @@ class Master:
 
         # comprobamos la cantidad de memoria
         texto = f.read()
+        f.close()
         texto_length = len(texto)
+        print("debug texto_length = " + str(texto_length))  # todo quitar
         max_length = (len(self.key_char)**(self.key_length - 1)) * self.slaveDB["S0"].memory
         if texto_length > max_length:
             return "Error. El texto tiene " + str(texto_length) + " caracteres de longitud, este simulador acepta un máximo de " + str(max_length) + " caracteres por texto."

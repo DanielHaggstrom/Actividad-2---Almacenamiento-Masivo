@@ -46,4 +46,4 @@ class Slave:
 
     def getFreeMemory(self, block_length):
         # devuelve el número de bloques que todavía entran en este nodo
-        return self.memory // block_length
+        return (self.memory - len(self.database)) // block_length

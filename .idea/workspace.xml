@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="509415d5-769b-4d5b-9e74-b1e0acd15edb" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DFSim.py" beforeDir="false" afterPath="$PROJECT_DIR$/DFSim.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Master.py" beforeDir="false" afterPath="$PROJECT_DIR$/Master.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Slave.py" beforeDir="false" afterPath="$PROJECT_DIR$/Slave.py" afterDir="false" />
     </list>
@@ -89,5 +87,16 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Master.py</url>
+          <line>88</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

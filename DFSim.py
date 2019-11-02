@@ -35,7 +35,7 @@ def write(*args):
 # En esta seccion se pueden incluir nuevos comandos como "def write" o similares
 
 def erase(*args):
-    masterNode.erase(*args)
+    return masterNode.erase(*args)
 
 def debug(*args):
     masterNode.debug()

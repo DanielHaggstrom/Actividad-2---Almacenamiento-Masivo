@@ -23,6 +23,7 @@ class Master:
     mode = ["secuencial"]
     def __getNext(self, string):
         # "suma 1" al string proporcionado
+        new_s = ""
         if string != "z" * len(string):
             rev = string[::-1]
             new_s = ""
@@ -86,14 +87,16 @@ class Master:
         texto = f.read()
         f.close()
         texto_length = len(texto)
-        print("debug texto_length = " + str(texto_length))  # todo quitar
         max_length = (len(self.key_char)**(self.key_length - 1)) * self.slaveDB["S0"].memory
         if texto_length > max_length:
-            return "Error. El texto tiene " + str(texto_length) + " caracteres de longitud, este simulador acepta un máximo de " + str(max_length) + " caracteres por texto."
+            return "Error. El texto tiene " + str(texto_length) +\
+                   " caracteres de longitud, este simulador acepta un máximo de " \
+                   + str(max_length) + " caracteres por texto."
         memory_dict = {slave.id: slave.getFreeMemory(self.memoryBlock) for slave in self.slaveDB.values()}
         total_memory = sum(memory_dict.values())
-        if texto_length/self.memoryBlock > total_memory:
-            return "Error de memoria. El texto tiene " + str(texto_length) + " caracteres, necesita " + str(texto_length/self.slaveDB["S0"].memory) + " nodos."
+        if texto_length > total_memory * (self.memoryBlock - self.key_length):  #todo sigue sin funcionar
+            return "Error de memoria. Necesita " \
+                   + str(texto_length/(self.memoryBlock - self.key_length) - total_memory) + " nodos más."
 
         # comprobamos que el número de archivos diferentes no es demasiado elevado
         if len(self.file_list) >= len(self.key_char):

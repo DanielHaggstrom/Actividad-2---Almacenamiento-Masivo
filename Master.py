@@ -16,12 +16,13 @@ class Master:
     ############################################
 
     # Definimos variables útiles
-    file_list = []
     key_length = 4
     key_char = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÑñ"
+    file_dict = {item: None for item in key_char}
     # la "ñ" debe ir al final, ya que es así como python la ordena alfabéticamente
     mode = ["secuencial"]
-    def __getNext(self, string):
+
+    def get_next(self, string):
         # "suma 1" al string proporcionado
         new_s = ""
         if string != "z" * len(string):
@@ -40,14 +41,21 @@ class Master:
                     else:
                         char = 0
                         new_s += self.key_char[char]
-        return(new_s[::-1])
+        return new_s[::-1]
+
+    def get_key_from_file(self, value):
+        # dado un archivo, devuelve la clave asignada a ese archivo
+        # presupone que los valores son únicos y que el valor existe en el diccionario
+        for k, v in self.file_dict.items():
+            if v == value:
+                return k
 
     def read(self, arg):
         file = "".join(arg)
         # comprobamos si el archivo existe en el sistema
-        if file not in self.file_list:
+        if file not in self.file_dict.values():
             return "Ese archivo no está guardado en el sistema"
-        key_file = self.key_char[self.file_list.index(file)]
+        key_file = self.get_key_from_file(file)
 
         # pedimos a los nodos esclavos que nos den los bloques correspondientes
         block_list = []
@@ -80,31 +88,35 @@ class Master:
             return "Error. No se encontró el archivo"
 
         # comprobamos que el archivo no haya sido guardado previamente
-        if args[1] in self.file_list:
+        if args[1] in self.file_dict.values():
             return "Error, ese texto ya está guardado"
 
         # comprobamos la cantidad de memoria
+        # comprobamos que el número de archivos diferentes no es demasiado elevado
+        if len([x for x in self.file_dict.values() if x is not None]) >= len(self.key_char):
+            return "Error. Este simulador sólo puede almacenar " + str(len(self.key_char)) + " textos diferentes."
+
         texto = f.read()
         f.close()
         texto_length = len(texto)
-        max_length = (len(self.key_char)**(self.key_length - 1)) * self.slaveDB["S0"].memory
+        max_length = (len(self.key_char)**(self.key_length - 1)) * (self.slaveDB["S0"].memory - self.key_length)
         if texto_length > max_length:
             return "Error. El texto tiene " + str(texto_length) +\
                    " caracteres de longitud, este simulador acepta un máximo de " \
                    + str(max_length) + " caracteres por texto."
         memory_dict = {slave.id: slave.getFreeMemory(self.memoryBlock) for slave in self.slaveDB.values()}
-        total_memory = sum(memory_dict.values())
-        if texto_length > total_memory * (self.memoryBlock - self.key_length):  #todo sigue sin funcionar
+        total_memory = sum(memory_dict.values()) * (self.memoryBlock - self.key_length)
+        if texto_length > total_memory:
             return "Error de memoria. Necesita " \
-                   + str(texto_length/(self.memoryBlock - self.key_length) - total_memory) + " nodos más."
-
-        # comprobamos que el número de archivos diferentes no es demasiado elevado
-        if len(self.file_list) >= len(self.key_char):
-            return "Error. Este simulador sólo puede almacenar " + str(len(self.key_char)) + " textos diferentes."
+                   + str((texto_length - total_memory)/((self.memoryBlock - self.key_length)*(self.slaveDB["S0"].memory/self.memoryBlock))) + " nodos más."
 
         # escogemos una clave para representar este archivo concreto
-        self.file_list.append(args[1])
-        key = self.key_char[len(self.file_list) - 1]
+        key = ""
+        for element in self.key_char:
+            if self.file_dict[element] is None:
+                key = element
+                self.file_dict[key] = args[1]
+                break
 
         # dividimos el texto en bloques
         block_list = [texto[i:i+self.memoryBlock - self.key_length]
@@ -114,7 +126,7 @@ class Master:
         count = "0" * (self.key_length - 1)
         for i in range(len(block_list)):
             block_list[i] = key + count + block_list[i]
-            count = self.__getNext(count)
+            count = self.get_next(count)
 
         # y es el turno de la función específica para el modo indicado.
         aux = False
@@ -140,14 +152,14 @@ class Master:
     def erase(self, arg):
         file = "".join(arg)
         # comprobamos si el archivo existe en el sistema
-        if file not in self.file_list:
+        if file not in self.file_dict.values():
             return "Ese archivo no está guardado en el sistema"
-        key_file = self.key_char[self.file_list.index(file)]
+        key_file = self.get_key_from_file(file)
         sum_aux = 0
         for slave in self.slaveDB.values():
             sum_aux += slave.erase(key_file, self.memoryBlock)
         if sum_aux == 0:
-            self.file_list.remove(file)
+            self.file_dict[key_file] = None
             return "Archivo borrado"
         else:
             return "Error en el borrado"

@@ -13,7 +13,7 @@ class Master:
         self.database = json.dumps({"key_length": 5,
                                     "key_char": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÑñ",
                                     "file_dict": {'0': None, '1': None, '2': None, '3': None, '4': None, '5': None, '6': None, '7': None, '8': None, '9': None, 'A': None, 'B': None, 'C': None, 'D': None, 'E': None, 'F': None, 'G': None, 'H': None, 'I': None, 'J': None, 'K': None, 'L': None, 'M': None, 'N': None, 'O': None, 'P': None, 'Q': None, 'R': None, 'S': None, 'T': None, 'U': None, 'V': None, 'W': None, 'X': None, 'Y': None, 'Z': None, 'a': None, 'b': None, 'c': None, 'd': None, 'e': None, 'f': None, 'g': None, 'h': None, 'i': None, 'j': None, 'k': None, 'l': None, 'm': None, 'n': None, 'o': None, 'p': None, 'q': None, 'r': None, 's': None, 't': None, 'u': None, 'v': None, 'w': None, 'x': None, 'y': None, 'z': None, 'Ñ': None, 'ñ': None},
-                                    "mode": ["hasta_maxima_carga", "secuencial", "aleatorio"]})
+                                    "mode": ["hasta_maxima_carga", "secuencial", "aleatorio", "primero_vacio"]})
         self.slaveDB = slaveDB
         self.memoryBlock = memoryBlock
 
@@ -155,6 +155,8 @@ class Master:
             aux = self.secuencial(block_list)
         elif mode == mode_list[2]:
             aux = self.aleatorio(block_list)
+        elif mode == mode_list[3]:
+            aux = self.primero_vacio(block_list, memory_dict)
         if aux:
             return "Datos guardados."
         else:
@@ -195,6 +197,23 @@ class Master:
             if not slave.isFull(self.memoryBlock):
                 sum_aux += slave.write(block_list[0], self.memoryBlock)
                 block_list.pop(0)
+        if sum_aux == 0:
+            return True
+        else:
+            return False
+
+    def primero_vacio(self, block_list, memory_dict):  # todo
+        # escribe datos priorizando nodos vacíos
+        sorted_by_second = sorted(memory_dict.items(), key=lambda tup: tup[1], reverse=True)
+        slave_list = [tuple_of_memory[0] for tuple_of_memory in sorted_by_second]
+        sum_aux = 0
+        while len(block_list) > 0:
+            for slave in slave_list:
+                if not self.slaveDB[slave].isFull(self.memoryBlock):
+                    sum_aux += self.slaveDB[slave].write(block_list[0], self.memoryBlock)
+                    block_list.pop(0)
+                    if len(block_list) == 0:
+                        break
         if sum_aux == 0:
             return True
         else:

@@ -15,10 +15,25 @@ class Slave:
     #       MODIFICAR A PARTIR DE AQUI         #
     ############################################
 
-    def read(self, key_file, block_length):
-        block_list = [self.database[i:i + block_length]
-                      for i in range(0, len(self.database), block_length)]
-        answer_list = [block for block in block_list if block[0] == key_file]  # slave no elimina la clave
+    def get_blocks(self, key_length, key_char):
+        # devuelve una lista con los bloques contenidos en la base de datos
+        block_list = []
+        finished = False
+        start = 0
+        while not finished:
+            end = key_char.find(self.database[start + key_length - 1]) + start
+            block_list.append(self.database[start:end])
+            start = end
+            if start + key_length - 1 > len(self.database):
+                finished = True
+        return block_list
+
+
+    def read(self, key_file, key_length, key_char):
+        answer_list = []
+        if self.database != "":
+            block_list = self.get_blocks(key_length, key_char)
+            answer_list = [block for block in block_list if block[0] == key_file]  # slave no elimina la clave
         return answer_list
 
     def write(self, texto, block_length):
@@ -36,12 +51,12 @@ class Slave:
         else:
             return False
 
-    def erase(self, key_file, block_length):
+    def erase(self, key_file, key_length, key_char):
         # elimina los bloques que corresponden al archivo especificado
-        block_list = [self.database[i:i + block_length]
-                      for i in range(0, len(self.database), block_length)]
-        new_list = [block for block in block_list if block[0] != key_file]
-        self.database = "".join(new_list)
+        if self.database != "":
+            block_list = self.get_blocks(key_length, key_char)
+            new_list = [block for block in block_list if block[0] != key_file]
+            self.database = "".join(new_list)
         return 0
 
     def getFreeMemory(self, block_length):

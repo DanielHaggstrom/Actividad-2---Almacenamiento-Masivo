@@ -1,13 +1,13 @@
-import json
 import random
+
 
 class Master:
     ############################################
     #               NO TOCAR                   #
     ############################################
-    database = None        #Cadena de caracteres (STRING) que contiene toda la informacion del nodo maestro
-    slaveDB = None         #Tupla de nodos esclavos
-    memoryBlock = None     #Tamanyo del bloque de memoria actual, expresado en numero de caracteres
+    database = None  # Cadena de caracteres (STRING) que contiene toda la informacion del nodo maestro
+    slaveDB = None  # Tupla de nodos esclavos
+    memoryBlock = None  # Tamanyo del bloque de memoria actual, expresado en numero de caracteres
 
     def __init__(self, slaveDB, memoryBlock):
         self.database = "5 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÑñ"
@@ -18,9 +18,42 @@ class Master:
     #       MODIFICAR A PARTIR DE AQUI         #
     ############################################
 
+    def get_key_length(self):
+        return int(self.database.split(" ")[0])
+
+    def get_key_char(self):
+        return self.database.split(" ")[1]
+
+    def get_file_list(self):
+        var_list = self.database.split(" ")
+        if len(var_list) > 2:
+            return var_list[2::2]
+        else:
+            return []
+
+    def get_key_from_file(self, file):
+        file_list = self.get_file_list()
+        key_list = self.get_key_list()
+        return key_list[file_list.index(file)]
+
+
+    def get_key_list(self):
+        var_list = self.database.split(" ")
+        if len(var_list) > 2:
+            return var_list[3::2]
+        else:
+            return []
+
+    def set_file_and_key_lists(self, file_list, key_list):
+        s = "5 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÑñ"
+        list_tuple = zip(file_list, key_list)
+        for file, key in list_tuple:
+            s += " " + file + " " + key
+        self.database = s
+
     def get_next(self, string):
         # "suma 1" al string proporcionado
-        key_char = self.database.split(" ")[1]
+        key_char = self.get_key_char()
         new_s = ""
         if string != key_char[-1] * len(string):
             rev = string[::-1]
@@ -41,19 +74,19 @@ class Master:
         return new_s[::-1]
 
     def read(self, arg):
-        var_list = self.database.split(" ")
-        key_length = int(var_list[0])
-        key_char = var_list[1]
-        if len(var_list) > 2:
-            file_list = var_list [2:]
-        else:
+        key_length = self.get_key_length()
+        key_char = self.get_key_char()
+        file_list = self.get_file_list()
+        if len(file_list) == 0:
             return "No hay archivos guardados en el sistema."
 
         file = "".join(arg)
         # comprobamos si el archivo existe en el sistema
         if file not in file_list:
             return "Ese archivo no está guardado en el sistema."
-        key_file = key_char[file_list.index(file)]
+
+        # obtenemos el identificador de archivo
+        key_file = self.get_key_from_file(file)
 
         # pedimos a los nodos esclavos que nos den los bloques correspondientes
         block_list = []
@@ -78,14 +111,10 @@ class Master:
             return "Error de sintaxis. Use el comando 'ayuda' para más información."
 
         # cargamos las variables de nuestra base de datos
-        var_list = self.database.split(" ")
         mode_list = ["hasta_maxima_carga", "a", "secuencial", "b", "aleatorio", "c", "primero_vacio", "d"]
-        key_length = int(var_list[0])
-        key_char = var_list[1]
-        if len(var_list) > 2:
-            file_list = var_list[2:]
-        else:
-            file_list = []
+        key_length = self.get_key_length()
+        key_char = self.get_key_char()
+        file_list = self.get_file_list()
 
         # comprobamos que el modo de escritura sea correcto
         mode = args[0]
@@ -110,29 +139,32 @@ class Master:
         texto = f.read()
         f.close()
         texto_length = len(texto)
-        max_length = (len(key_char)**(key_length - 1)) * (self.slaveDB["S0"].memory - key_length)
+        max_length = (len(key_char) ** (key_length - 1)) * (self.slaveDB["S0"].memory - key_length)
         if texto_length > max_length:
-            return "Error. El texto tiene " + str(texto_length) +\
+            return "Error. El texto tiene " + str(texto_length) + \
                    " caracteres de longitud, este simulador acepta un máximo de " \
                    + str(max_length) + " caracteres por texto."
         memory_dict = {slave.id: slave.getFreeMemory(self.memoryBlock) for slave in self.slaveDB.values()}
         total_memory = sum(memory_dict.values()) * (self.memoryBlock - key_length)
         if texto_length > total_memory:
             return "Error de memoria. Necesita " \
-                   + str((texto_length - total_memory)/((self.memoryBlock - key_length)*(self.slaveDB["S0"].memory/self.memoryBlock))) + " nodos más."
+                   + str((texto_length - total_memory) / ((self.memoryBlock - key_length) * (
+                        self.slaveDB["S0"].memory / self.memoryBlock))) + " nodos más."
 
         # escogemos una clave para representar este archivo concreto
         file_list.append(args[1])
-        key = key_char[file_list.index(args[1])]
+        key_list = self.get_key_list()
+        for char in key_char:
+            if char not in key_list:
+                key = char
+                break
+        key_list.append(key)
 
-        # guardamos el nuevo file_list
-        s = "5 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÑñ"
-        for file in file_list:
-            s += " " + file
-        self.database = s
+        # guardamos file_list y key_list
+        self.set_file_and_key_lists(file_list, key_list)
 
         # dividimos el texto en bloques
-        block_list = [texto[i:i+self.memoryBlock - key_length]
+        block_list = [texto[i:i + self.memoryBlock - key_length]
                       for i in range(0, len(texto), self.memoryBlock - key_length)]
 
         # añadimos los metadatos, que informan de a qué archivo pertenece cada bloque y en qué orden va
@@ -196,7 +228,7 @@ class Master:
         else:
             return False
 
-    def primero_vacio(self, block_list, memory_dict):  # todo
+    def primero_vacio(self, block_list, memory_dict):
         # escribe datos priorizando nodos vacíos
         sorted_by_second = sorted(memory_dict.items(), key=lambda tup: tup[1], reverse=True)
         slave_list = [tuple_of_memory[0] for tuple_of_memory in sorted_by_second]
@@ -215,29 +247,28 @@ class Master:
 
     def erase(self, arg):
         # necesitamos file_dict
-        var_list = self.database.split(" ")
-        key_length = int(var_list[0])
-        key_char = var_list[1]
-        if len(var_list) > 2:
-            file_list = var_list[2:]
-        else:
-            file_list = []
+        key_length = self.get_key_length()
+        key_char = self.get_key_char()
+        file_list = self.get_file_list()
         file = "".join(arg)
+
         # comprobamos si el archivo existe en el sistema
         if file not in file_list:
             return "Ese archivo no está guardado en el sistema"
-        key_file = key_char[file_list.index(file)]
+
+        # obtenemos el identificador del archivo
+        key_file = self.get_key_from_file(file)
         sum_aux = 0
         for slave in self.slaveDB.values():
             if slave.database != "":
                 sum_aux += slave.erase(key_file, key_length, key_char)
         if sum_aux == 0:
             file_list.remove(file)
-            # guardamos el nuevo file_list
-            s = "5 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÑñ"
-            for file in file_list:
-                s += " " + file
-            self.database = s
+            key_list = self.get_key_list()
+            key_list.remove(key_file)
+
+            # guardamos los nuevos file_list y key_list
+            self.set_file_and_key_lists(file_list, key_list)
             return "Archivo borrado"
         else:
             return "Error en el borrado"
@@ -246,3 +277,4 @@ class Master:
         for slave in self.slaveDB.values():
             if slave.database != "":
                 print(slave.id + " " + slave.database)
+        print(self.database)

@@ -40,13 +40,22 @@ def erase(*args):
 
 def debug(*args):
     masterNode.debug()
+    return ""
+
+def help(*args):
+    return "Los comandos son: escribir, leer, borrar, debug, ayuda y salir.\nSalir, debug y ayuda no toman parámetros." \
+           "\nLeer y borrar toman un parámetro, el nombre del archivo que se quiere leer o borrar.\nEscribir toma dos," \
+           " que son el modo de escritura y el nombre del archivo.\nLos modos de escritura son: hasta_maxima_carga (a)," \
+           " secuencial (b), aleatorio (c) y primero_vacio (d).\nSe puede pasar tanto el nombre del modo como su letra" \
+           " asociada, para mayor comodidad."
 
 commands = {
     "salir": quit,
     "leer": read,
     "escribir": write,
     "borrar": erase,
-    "debug": debug
+    "debug": debug,
+    "ayuda": help
 }
 
 out = False
@@ -62,12 +71,11 @@ while not out:
         start = time.time()
         output = commands[f](args)  # Ejecucion de la instruccion
         end = time.time()
-        print("Operación ejecutada en " + str(end - start) + " segundos.")
     else:
         print("Comando desconocido")
         output = "none"
 
     if output is "quit":
         out = True  # Salir del programa
-
     print(output)
+    print("Operación ejecutada en " + str(end - start) + " segundos.")

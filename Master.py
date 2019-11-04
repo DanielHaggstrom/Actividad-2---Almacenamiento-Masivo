@@ -10,10 +10,7 @@ class Master:
     memoryBlock = None     #Tamanyo del bloque de memoria actual, expresado en numero de caracteres
 
     def __init__(self, slaveDB, memoryBlock):
-        self.database = json.dumps({"key_length": 5,
-                                    "key_char": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÑñ",
-                                    "file_dict": {'0': None, '1': None, '2': None, '3': None, '4': None, '5': None, '6': None, '7': None, '8': None, '9': None, 'A': None, 'B': None, 'C': None, 'D': None, 'E': None, 'F': None, 'G': None, 'H': None, 'I': None, 'J': None, 'K': None, 'L': None, 'M': None, 'N': None, 'O': None, 'P': None, 'Q': None, 'R': None, 'S': None, 'T': None, 'U': None, 'V': None, 'W': None, 'X': None, 'Y': None, 'Z': None, 'a': None, 'b': None, 'c': None, 'd': None, 'e': None, 'f': None, 'g': None, 'h': None, 'i': None, 'j': None, 'k': None, 'l': None, 'm': None, 'n': None, 'o': None, 'p': None, 'q': None, 'r': None, 's': None, 't': None, 'u': None, 'v': None, 'w': None, 'x': None, 'y': None, 'z': None, 'Ñ': None, 'ñ': None},
-                                    "mode": ["hasta_maxima_carga", "secuencial", "aleatorio", "primero_vacio"]})
+        self.database = "5 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÑñ"
         self.slaveDB = slaveDB
         self.memoryBlock = memoryBlock
 
@@ -23,10 +20,9 @@ class Master:
 
     def get_next(self, string):
         # "suma 1" al string proporcionado
-        var_dict = json.loads(self.database)
-        key_char = var_dict["key_char"]
+        key_char = self.database.split(" ")[1]
         new_s = ""
-        if string != "ñ" * len(string):
+        if string != key_char[-1] * len(string):
             rev = string[::-1]
             new_s = ""
             aux = True
@@ -35,7 +31,7 @@ class Master:
                 if not aux:
                     new_s += key_char[char]
                 else:
-                    if char != 63:
+                    if char != len(key_char) - 1:
                         char = char + 1
                         new_s += key_char[char]
                         aux = False
@@ -44,24 +40,20 @@ class Master:
                         new_s += key_char[char]
         return new_s[::-1]
 
-    def get_key_from_file(self, value, dict):
-        # dado un valor y un diccionario, devuelve la clave asignada a ese valor
-        # presupone que los valores son únicos y que el valor existe en el diccionario
-        for k, v in dict.items():
-            if v == value:
-                return k
-
     def read(self, arg):
-        var_dict = json.loads(self.database)
-        file_dict = var_dict["file_dict"]
-        key_length = var_dict["key_length"]
-        key_char = var_dict["key_char"]
+        var_list = self.database.split(" ")
+        key_length = int(var_list[0])
+        key_char = var_list[1]
+        if len(var_list) > 2:
+            file_list = var_list [2:]
+        else:
+            return "No hay archivos guardados en el sistema."
 
         file = "".join(arg)
         # comprobamos si el archivo existe en el sistema
-        if file not in file_dict.values():
-            return "Ese archivo no está guardado en el sistema"
-        key_file = self.get_key_from_file(file, file_dict)
+        if file not in file_list:
+            return "Ese archivo no está guardado en el sistema."
+        key_file = key_char[file_list.index(file)]
 
         # pedimos a los nodos esclavos que nos den los bloques correspondientes
         block_list = []
@@ -69,6 +61,7 @@ class Master:
             answer = slave.read(key_file, key_length, key_char)
             if len(answer) != 0:
                 block_list.extend(answer)
+
         # ordenamos la lista
         block_list = sorted(block_list)
 
@@ -85,11 +78,14 @@ class Master:
             return "Error de sintaxis. Use el comando 'ayuda' para más información."
 
         # cargamos las variables de nuestra base de datos
-        var_dict = json.loads(self.database)
-        mode_list = var_dict["mode"]
-        file_dict = var_dict["file_dict"]
-        key_char = var_dict["key_char"]
-        key_length = var_dict["key_length"]
+        var_list = self.database.split(" ")
+        mode_list = ["hasta_maxima_carga", "a", "secuencial", "b", "aleatorio", "c", "primero_vacio", "d"]
+        key_length = int(var_list[0])
+        key_char = var_list[1]
+        if len(var_list) > 2:
+            file_list = var_list[2:]
+        else:
+            file_list = []
 
         # comprobamos que el modo de escritura sea correcto
         mode = args[0]
@@ -103,12 +99,12 @@ class Master:
             return "Error. No se encontró el archivo"
 
         # comprobamos que el archivo no haya sido guardado previamente
-        if args[1] in file_dict.values():
+        if args[1] in file_list:
             return "Error, ese texto ya está guardado"
 
         # comprobamos la cantidad de memoria
         # comprobamos que el número de archivos diferentes no es demasiado elevado
-        if len([x for x in file_dict.values() if x is not None]) >= len(key_char):
+        if len(file_list) >= len(key_char):
             return "Error. Este simulador sólo puede almacenar " + str(len(key_char)) + " textos diferentes."
 
         texto = f.read()
@@ -126,16 +122,14 @@ class Master:
                    + str((texto_length - total_memory)/((self.memoryBlock - key_length)*(self.slaveDB["S0"].memory/self.memoryBlock))) + " nodos más."
 
         # escogemos una clave para representar este archivo concreto
-        key = ""
-        for element in key_char:
-            if file_dict[element] is None:
-                key = element
-                file_dict[key] = args[1]
-                break
+        file_list.append(args[1])
+        key = key_char[file_list.index(args[1])]
 
-        # guardamos el nuevo file_dict
-        var_dict["file_dict"] = file_dict
-        self.database = json.dumps(var_dict)
+        # guardamos el nuevo file_list
+        s = "5 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÑñ"
+        for file in file_list:
+            s += " " + file
+        self.database = s
 
         # dividimos el texto en bloques
         block_list = [texto[i:i+self.memoryBlock - key_length]
@@ -149,13 +143,13 @@ class Master:
 
         # y es el turno de la función específica para el modo indicado.
         aux = False
-        if mode == mode_list[0]:
+        if mode in mode_list[0:2]:
             aux = self.maxima_carga(block_list)
-        elif mode == mode_list[1]:
+        elif mode in mode_list[2:4]:
             aux = self.secuencial(block_list)
-        elif mode == mode_list[2]:
+        elif mode in mode_list[4:6]:
             aux = self.aleatorio(block_list)
-        elif mode == mode_list[3]:
+        elif mode in mode_list[6:8]:
             aux = self.primero_vacio(block_list, memory_dict)
         if aux:
             return "Datos guardados."
@@ -221,24 +215,29 @@ class Master:
 
     def erase(self, arg):
         # necesitamos file_dict
-        var_dict = json.loads(self.database)
-        file_dict = var_dict["file_dict"]
-        key_char = var_dict["key_char"]
-        key_length = var_dict["key_length"]
+        var_list = self.database.split(" ")
+        key_length = int(var_list[0])
+        key_char = var_list[1]
+        if len(var_list) > 2:
+            file_list = var_list[2:]
+        else:
+            file_list = []
         file = "".join(arg)
         # comprobamos si el archivo existe en el sistema
-        if file not in file_dict.values():
+        if file not in file_list:
             return "Ese archivo no está guardado en el sistema"
-        key_file = self.get_key_from_file(file, file_dict)
+        key_file = key_char[file_list.index(file)]
         sum_aux = 0
         for slave in self.slaveDB.values():
             if slave.database != "":
                 sum_aux += slave.erase(key_file, key_length, key_char)
         if sum_aux == 0:
-            file_dict[key_file] = None
-            # guardamos el nuevo file_dict
-            var_dict["file_dict"] = file_dict
-            self.database = json.dumps(var_dict)
+            file_list.remove(file)
+            # guardamos el nuevo file_list
+            s = "5 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÑñ"
+            for file in file_list:
+                s += " " + file
+            self.database = s
             return "Archivo borrado"
         else:
             return "Error en el borrado"

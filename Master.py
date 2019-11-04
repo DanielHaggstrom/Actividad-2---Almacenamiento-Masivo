@@ -26,7 +26,7 @@ class Master:
         var_dict = json.loads(self.database)
         key_char = var_dict["key_char"]
         new_s = ""
-        if string != "z" * len(string):
+        if string != "ñ" * len(string):
             rev = string[::-1]
             new_s = ""
             aux = True

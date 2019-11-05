@@ -168,7 +168,7 @@ class Master:
                       for i in range(0, len(texto), self.memoryBlock - key_length)]
 
         # añadimos los metadatos, que informan de a qué archivo pertenece cada bloque y en qué orden va
-        count = "0" * (key_length - 2)
+        count = key_char[0] * (key_length - 2)
         for i in range(len(block_list)):
             block_list[i] = key + count + key_char[len(block_list[i]) + key_length] + block_list[i]
             count = self.get_next(count)

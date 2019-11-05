@@ -60,17 +60,20 @@ commands = {
 
 out = False
 
+print("Bienvenido al simulador. Si es su primera vez usándolo, use el comando 'ayuda' para obtener una lista de los comandos a su disposición.")
 # Bucle principal de ejecucion
 while not out:
     command = input("[DFSim]>> ")  # Introducir una instruccion
     parsed = [i for i in command.split(" ") if i != '']  # Separar la instruccion
     f = parsed[0]  # Extraer el nombre del comando
     args = tuple([x for i, x in enumerate(parsed) if i != 0])  # Extraer los argumentos introducidos
+    s = ""
 
     if f in commands.keys():
         start = time.time()
         output = commands[f](args)  # Ejecucion de la instruccion
         end = time.time()
+        s = "Operación ejecutada en " + str(end - start) + " segundos."
     else:
         print("Comando desconocido")
         output = "none"
@@ -78,4 +81,4 @@ while not out:
     if output is "quit":
         out = True  # Salir del programa
     print(output)
-    print("Operación ejecutada en " + str(end - start) + " segundos.")
+    print(s)

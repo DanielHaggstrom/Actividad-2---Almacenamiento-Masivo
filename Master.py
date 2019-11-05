@@ -10,7 +10,7 @@ class Master:
     memoryBlock = None  # Tamanyo del bloque de memoria actual, expresado en numero de caracteres
 
     def __init__(self, slaveDB, memoryBlock):
-        self.database = "5 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÑñ"
+        self.database = ""
         self.slaveDB = slaveDB
         self.memoryBlock = memoryBlock
 
@@ -19,15 +19,15 @@ class Master:
     ############################################
 
     def get_key_length(self):
-        return int(self.database.split(" ")[0])
+        return 5
 
     def get_key_char(self):
-        return self.database.split(" ")[1]
+        return "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÑñ"
 
     def get_file_list(self):
         var_list = self.database.split(" ")
         if len(var_list) > 2:
-            return var_list[2::2]
+            return var_list[1::2]
         else:
             return []
 
@@ -40,12 +40,12 @@ class Master:
     def get_key_list(self):
         var_list = self.database.split(" ")
         if len(var_list) > 2:
-            return var_list[3::2]
+            return var_list[2::2]
         else:
             return []
 
     def set_file_and_key_lists(self, file_list, key_list):
-        s = "5 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÑñ"
+        s = ""
         list_tuple = zip(file_list, key_list)
         for file, key in list_tuple:
             s += " " + file + " " + key

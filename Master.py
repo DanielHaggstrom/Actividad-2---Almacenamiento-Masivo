@@ -98,6 +98,14 @@ class Master:
         # ordenamos la lista
         block_list = sorted(block_list)
 
+        # eliminamos los elementos repetidos
+        current = block_list[0]
+        new_block_list = list(current)
+        for block in block_list[1:]:
+            if block != current:
+                new_block_list.append(block)
+                current = block
+
         # y la juntamos en un string, eliminando los metadatos
         texto = ""
         for item in block_list:
@@ -175,14 +183,23 @@ class Master:
 
         # y es el turno de la función específica para el modo indicado.
         aux = False
+        rep_num = 3
         if mode in mode_list[0:2]:
-            aux = self.maxima_carga(block_list)
+            for i in range(rep_num):
+                block_list_copy = block_list.copy()
+                aux = self.maxima_carga(block_list_copy)
         elif mode in mode_list[2:4]:
-            aux = self.secuencial(block_list)
+            for i in range(rep_num):
+                block_list_copy = block_list.copy()
+                aux = self.secuencial(block_list_copy)
         elif mode in mode_list[4:6]:
-            aux = self.aleatorio(block_list)
+            for i in range(rep_num):
+                block_list_copy = block_list.copy()
+                aux = self.aleatorio(block_list_copy)
         elif mode in mode_list[6:8]:
-            aux = self.primero_vacio(block_list, memory_dict)
+            for i in range(rep_num):
+                block_list_copy = block_list.copy()
+                aux = self.primero_vacio(block_list_copy, memory_dict)
         if aux:
             return "Datos guardados."
         else:

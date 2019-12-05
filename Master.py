@@ -1,5 +1,5 @@
 import random
-
+import collections
 
 class Master:
     ############################################
@@ -290,3 +290,34 @@ class Master:
             if slave.database != "":
                 print(slave.id + " " + slave.database)
         print(self.database)
+
+    def check_file(self, arg):
+        key_length = self.get_key_length()
+        key_char = self.get_key_char()
+        file_list = self.get_file_list()
+        if len(file_list) == 0:
+            return "No hay archivos guardados en el sistema."
+
+        file = "".join(arg)
+        # comprobamos si el archivo existe en el sistema
+        if file not in file_list:
+            return "Ese archivo no está guardado en el sistema."
+
+        # obtenemos el identificador de archivo
+        key_file = self.get_key_from_file(file)
+
+        # pedimos a los nodos esclavos que nos den los bloques correspondientes
+        block_list = []
+        for slave in self.slaveDB.values():
+            answer = slave.read(key_file, key_length, key_char)
+            if len(answer) != 0:
+                block_list.extend(answer)
+
+        counter = collections.Counter(block_list)
+        # asumiremos rep_num = 3
+        rep_num = 3
+        sum = 0
+        for key, value in counter.items():
+            sum = sum + rep_num - value
+        ratio = sum / (len(block_list) * rep_num)
+        return "El ratio de defectos es de " + str(ratio)

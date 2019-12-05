@@ -49,13 +49,17 @@ def help(*args):
            " secuencial (b), aleatorio (c) y primero_vacio (d).\nSe puede pasar tanto el nombre del modo como su letra" \
            " asociada, para mayor comodidad."
 
+def check(*args):
+    return masterNode.check_file(*args)
+
 commands = {
     "salir": quit,
     "leer": read,
     "escribir": write,
     "borrar": erase,
     "debug": debug,
-    "ayuda": help
+    "ayuda": help,
+    "comprobar": check
 }
 
 out = False

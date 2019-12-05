@@ -1,4 +1,5 @@
 import random
+import time
 
 class Slave:
     ############################################
@@ -23,7 +24,9 @@ class Slave:
         finished = False
         start = 0
         while not finished:
-            end = key_char.find(self.database[start + key_length - 1]) + start
+            y = key_char.find(self.database[start + key_length - 1])
+            x = key_char.find(self.database[start + key_length - 2])
+            end = start + y + 64 * x
             block_list.append(self.database[start:end])
             start = end
             if start + key_length - 1 > len(self.database):

@@ -1,5 +1,6 @@
 import random
 import collections
+import time
 
 class Master:
     ############################################
@@ -19,7 +20,7 @@ class Master:
     ############################################
 
     def get_key_length(self):
-        return 5
+        return 6
 
     def get_key_char(self):
         return "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÑñ"
@@ -171,9 +172,14 @@ class Master:
                       for i in range(0, len(texto), self.memoryBlock - key_length)]
 
         # añadimos los metadatos, que informan de a qué archivo pertenece cada bloque y en qué orden va
-        count = key_char[0] * (key_length - 2)
+        count = key_char[0] * (key_length - 3)
         for i in range(len(block_list)):
-            block_list[i] = key + count + key_char[len(block_list[i]) + key_length] + block_list[i]
+            length_of_block = len(block_list[i]) + key_length
+            current = key_char[0] * 2
+            for j in range(length_of_block):
+                current = self.get_next(current)
+
+            block_list[i] = key + count + current + block_list[i]
             count = self.get_next(count)
 
         # y es el turno de la función específica para el modo indicado.
@@ -319,5 +325,5 @@ class Master:
         sum = 0
         for key, value in counter.items():
             sum = sum + rep_num - value
-        ratio = sum / (len(block_list) * rep_num)
+        ratio = sum / len(block_list)
         return "El ratio de defectos es de " + str(ratio)

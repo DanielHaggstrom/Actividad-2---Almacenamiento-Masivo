@@ -6,9 +6,9 @@ import time
 #               NO TOCAR                   #
 ############################################
 
-SLAVE_NUM = 400000  # Numero de nodos esclavos a simular
-SLAVE_MEMORY = 64  # Tamanyo maximo de la memoria de cada nodo esclavo
-MASTER_MEMBLOCK = 16  # Tamanyo del bloque de memoria de la base de datos, expresado en numero de caracteres
+SLAVE_NUM = 5000  # Numero de nodos esclavos a simular
+SLAVE_MEMORY = 4096  # Tamanyo maximo de la memoria de cada nodo esclavo
+MASTER_MEMBLOCK = 256  # Tamanyo del bloque de memoria de la base de datos, expresado en numero de caracteres
 
 slaveNodes = {"S" + str(k): Slave("S" + str(k), SLAVE_MEMORY) for k in range(0, SLAVE_NUM)}
 masterNode = Master(slaveNodes, MASTER_MEMBLOCK)

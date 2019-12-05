@@ -44,8 +44,7 @@ class Slave:
         if not self.isFull(block_length):
             self.database = self.database + texto
             aux = 0
-        #p = 0.00000001
-        p = -1
+        p = 0.00000001
         if(random.random() < p ):
             self.database = ""
         return aux

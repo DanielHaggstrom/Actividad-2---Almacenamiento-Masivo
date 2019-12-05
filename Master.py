@@ -99,16 +99,11 @@ class Master:
         block_list = sorted(block_list)
 
         # eliminamos los elementos repetidos
-        current = block_list[0]
-        new_block_list = list(current)
-        for block in block_list[1:]:
-            if block != current:
-                new_block_list.append(block)
-                current = block
+        new_block_list = list(dict.fromkeys(block_list))
 
         # y la juntamos en un string, eliminando los metadatos
         texto = ""
-        for item in block_list:
+        for item in new_block_list:
             texto = texto + item[key_length:]
         return texto
 

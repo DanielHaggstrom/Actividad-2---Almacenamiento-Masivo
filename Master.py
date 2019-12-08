@@ -111,7 +111,7 @@ class Master:
     def write(self, args):
         # divide el texto en bloques, les añade metadatos al principio y llama a la función adecuada según el modo
         # primero, comprobamos que el comando está bien escrito
-        if len(args) != 2:
+        if len(args) != 3:
             return "Error de sintaxis. Use el comando 'ayuda' para más información."
 
         # cargamos las variables de nuestra base de datos
@@ -137,7 +137,7 @@ class Master:
 
         # comprobamos la cantidad de memoria
         # comprobamos que el número de archivos diferentes no es demasiado elevado
-        rep_num = 3
+        rep_num = int(args[2])
         if len(file_list) >= len(key_char):
             return "Error. Este simulador sólo puede almacenar " + str(len(key_char)) + " textos diferentes."
 

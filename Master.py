@@ -137,17 +137,18 @@ class Master:
 
         # comprobamos la cantidad de memoria
         # comprobamos que el número de archivos diferentes no es demasiado elevado
+        rep_num = 3
         if len(file_list) >= len(key_char):
             return "Error. Este simulador sólo puede almacenar " + str(len(key_char)) + " textos diferentes."
 
         texto = f.read()
         f.close()
-        texto_length = len(texto)
-        max_length = (len(key_char) ** (key_length - 1)) * (self.slaveDB["S0"].memory - key_length)
+        texto_length = len(texto) * rep_num
+        max_length = (len(key_char) ** (key_length - 3)) * (self.slaveDB["S0"].memory - key_length)
         if texto_length > max_length:
             return "Error. El texto tiene " + str(texto_length) + \
                    " caracteres de longitud, este simulador acepta un máximo de " \
-                   + str(max_length) + " caracteres por texto."
+                   + str(max_length/rep_num) + " caracteres por texto."
         memory_dict = {slave.id: slave.getFreeMemory(self.memoryBlock) for slave in self.slaveDB.values()}
         total_memory = sum(memory_dict.values()) * (self.memoryBlock - key_length)
         if texto_length > total_memory:
@@ -184,7 +185,6 @@ class Master:
 
         # y es el turno de la función específica para el modo indicado.
         aux = False
-        rep_num = 3
         if mode in mode_list[0:2]:
             for i in range(rep_num):
                 block_list_copy = block_list.copy()

@@ -53,7 +53,7 @@ def check(*args):
     return masterNode.check_file(*args)
 
 def example(*args):
-    return masterNode.mapReduce()
+    return masterNode.mapReduce(*args)
 
 commands = {
     "salir": quit,

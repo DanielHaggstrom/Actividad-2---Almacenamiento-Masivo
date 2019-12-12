@@ -337,14 +337,25 @@ class Master:
                 frequency[char] = 1
         return list(frequency.items())
 
-    def mapReduce(self):
+    def mapReduce(self, arg):
         list_of_maps = []
         char_dict = {}
+        file_list = self.get_file_list()
+        if len(file_list) == 0:
+            return "No hay archivos guardados en el sistema."
+
+        file = "".join(arg)
+        # comprobamos si el archivo existe en el sistema
+        if file not in file_list:
+            return "Ese archivo no está guardado en el sistema."
+
+        # obtenemos el identificador de archivo
+        key_file = self.get_key_from_file(file)
 
         # obtenemos una lista de tuplas clave-valor (una tupla por nodo)
         for slave in self.slaveDB.values():
             if slave.database != "":
-                list_of_maps.append(slave.map(self.char_count, self.get_key_length(), self.get_key_char()))
+                list_of_maps.append(slave.map(self.char_count, self.get_key_length(), self.get_key_char(), key_file))
 
         # obtenemos un diccionario que asocia a cada clave una lista de valores
         for element in list_of_maps:

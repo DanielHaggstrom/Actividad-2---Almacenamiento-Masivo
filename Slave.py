@@ -69,12 +69,13 @@ class Slave:
         # devuelve el número de bloques que todavía entran en este nodo
         return (self.memory - len(self.database)) // block_length
 
-    def map(self, func, key_length, key_char):
+    def map(self, func, key_length, key_char, key):
         # ejecuta la función Map pasada por argumento, devolviendo una lista de tuplas
         block_list = self.get_blocks(key_length, key_char)
         texto = ""
         for item in block_list:
-            texto = texto + item[key_length:]
+            if item[0] == key:
+                texto = texto + item[key_length:]
         return func(texto)
 
     def reduce(self, key, list_of_values):

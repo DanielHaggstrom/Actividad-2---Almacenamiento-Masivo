@@ -37,7 +37,6 @@ class Master:
         key_list = self.get_key_list()
         return key_list[file_list.index(file)]
 
-
     def get_key_list(self):
         var_list = self.database.split(" ")
         if len(var_list) > 2:
@@ -327,3 +326,40 @@ class Master:
             sum = sum + rep_num - value
         ratio = sum / len(block_list)
         return "El ratio de defectos es de " + str(ratio)
+
+    @staticmethod
+    def char_count(database):
+        frequency = {}
+        for char in database:
+            if char in frequency:
+                frequency[char] = frequency[char] + 1
+            else:
+                frequency[char] = 1
+        return list(frequency.items())
+
+    def mapReduce(self):
+        list_of_maps = []
+        char_dict = {}
+
+        # obtenemos una lista de tuplas clave-valor (una tupla por nodo)
+        for slave in self.slaveDB.values():
+            if slave.database != "":
+                list_of_maps.append(slave.map(self.char_count, self.get_key_length(), self.get_key_char()))
+
+        # obtenemos un diccionario que asocia a cada clave una lista de valores
+        for element in list_of_maps:
+            for item in element:
+                if item[0] in char_dict:
+                    char_dict[item[0]].append(item[1])
+                else:
+                    char_dict[item[0]] = [item[1]]
+
+        # pasamos a cada esclavo una clave y su lista
+        result = {}
+        for key in char_dict.keys():
+            slave = self.slaveDB["S" + str(random.randint(0, len(self.slaveDB) - 1))]
+            result.update(slave.reduce(key, char_dict[key]))
+        return result
+
+
+

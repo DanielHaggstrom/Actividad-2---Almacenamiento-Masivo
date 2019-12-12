@@ -52,6 +52,9 @@ def help(*args):
 def check(*args):
     return masterNode.check_file(*args)
 
+def example(*args):
+    return masterNode.mapReduce()
+
 commands = {
     "salir": quit,
     "leer": read,
@@ -59,7 +62,8 @@ commands = {
     "borrar": erase,
     "debug": debug,
     "ayuda": help,
-    "comprobar": check
+    "comprobar": check,
+    "ejemplo": example
 }
 
 out = False

@@ -1,5 +1,4 @@
 import random
-import time
 
 class Slave:
     ############################################
@@ -32,7 +31,6 @@ class Slave:
             if start + key_length - 1 > len(self.database):
                 finished = True
         return block_list
-
 
     def read(self, key_file, key_length, key_char):
         answer_list = []
@@ -70,3 +68,16 @@ class Slave:
     def getFreeMemory(self, block_length):
         # devuelve el número de bloques que todavía entran en este nodo
         return (self.memory - len(self.database)) // block_length
+
+    def map(self, func, key_length, key_char):
+        # ejecuta la función Map pasada por argumento, devolviendo una lista de tuplas
+        block_list = self.get_blocks(key_length, key_char)
+        texto = ""
+        for item in block_list:
+            texto = texto + item[key_length:]
+        return func(texto)
+
+    def reduce(self, key, list_of_values):
+        # parte de una lista de valores, devuelve la suma
+        return {key: sum(list_of_values)}
+

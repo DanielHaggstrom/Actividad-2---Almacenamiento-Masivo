@@ -152,7 +152,7 @@ class Master:
 
         # comprobamos que rep_num sea correcto
         rep_num = int(args[2]) + 1
-        if rep_num < 0:
+        if rep_num <= 0:
             return "El número de réplicas no puede ser negativo"
 
         # comprobamos la cantidad de memoria
@@ -172,7 +172,7 @@ class Master:
         total_memory = sum(memory_dict.values()) * (self.memoryBlock - key_length)
         if texto_length > total_memory:
             return "Error de memoria. Necesita " \
-                   + str((texto_length - total_memory) / ((self.memoryBlock - key_length) * (
+                   + str((texto_length - total_memory) / ((self.memoryBlock - key_length) * rep_num * (
                         self.slaveDB["S0"].memory / self.memoryBlock))) + " nodos más."
 
         # escogemos una clave para representar este archivo concreto
@@ -186,7 +186,7 @@ class Master:
         rep_dict[key] = rep_num
 
         # guardamos file_list, key_list y rep_dict
-        self.update_metadata(str(int(self.get_time_since_check()) + 1) ,file_list, key_list, rep_dict)
+        self.update_metadata(str(int(self.get_time_since_check()) + rep_num),file_list, key_list, rep_dict)
 
         # dividimos el texto en bloques
         block_list = [texto[i:i + self.memoryBlock - key_length]

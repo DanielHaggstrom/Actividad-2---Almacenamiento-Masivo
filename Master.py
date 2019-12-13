@@ -1,6 +1,6 @@
 import random
 import collections
-import time
+
 
 class Master:
     ############################################
@@ -58,7 +58,7 @@ class Master:
         else:
             return {}
 
-    def update_metadata(self,integrity_count, file_list, key_list, rep_dict):
+    def update_metadata(self, integrity_count, file_list, key_list, rep_dict):
         s = integrity_count
         rep_list = [rep_dict[item] for item in key_list]
         list_tuple = zip(file_list, key_list, rep_list)
@@ -185,9 +185,6 @@ class Master:
         key_list.append(key)
         rep_dict[key] = rep_num
 
-        # guardamos file_list, key_list y rep_dict
-        self.update_metadata(str(int(self.get_time_since_check()) + rep_num),file_list, key_list, rep_dict)
-
         # dividimos el texto en bloques
         block_list = [texto[i:i + self.memoryBlock - key_length]
                       for i in range(0, len(texto), self.memoryBlock - key_length)]
@@ -222,6 +219,13 @@ class Master:
                 block_list_copy = block_list.copy()
                 aux = self.primero_vacio(block_list_copy, memory_dict)
         if aux:
+            # guardamos file_list, key_list y rep_dict
+            time_since = self.get_time_since_check()
+            self.update_metadata(str(int(time_since) + rep_num), file_list, key_list, rep_dict)
+
+            # comprobamos la integridad
+            if int(int(time_since) + rep_num) > 9:
+                print("Han pasado " + str(int(time_since) + rep_num) + " operaciones de escritura desde la última comprobación de integridad. Se recomienda que use el comando 'comprobar'.")
             return "Datos guardados."
         else:
             return "Error de escritura."
@@ -342,13 +346,18 @@ class Master:
                 block_list.extend(answer)
 
         counter = collections.Counter(block_list)
-        # asumiremos rep_num = 3
-        rep_num = 3
+        rep_dict = self.get_rep_dict()
+        rep_num = int(rep_dict[key_file])
         sum = 0
         for key, value in counter.items():
             sum = sum + rep_num - value
         ratio = sum / len(block_list)
-        return "El ratio de defectos es de " + str(ratio)
+        return str(ratio)
+
+    def check_all(self):
+        file_list = self.get_file_list()
+        for file in file_list:
+            print("El ratio de defectos de " + file + " es " + self.check_file(file))
 
     @staticmethod
     def char_count(database):

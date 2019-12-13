@@ -43,14 +43,14 @@ def debug(*args):
     return ""
 
 def help(*args):
-    return "Los comandos son: escribir, leer, borrar, debug, ayuda y salir.\nSalir, debug y ayuda no toman parámetros." \
+    return "Los comandos son: escribir, leer, borrar, debug, ayuda, comprobar, reparar y salir.\nSalir, debug, comprobar, reparar y ayuda no toman parámetros." \
            "\nLeer y borrar toman un parámetro, el nombre del archivo que se quiere leer o borrar.\nEscribir toma tres," \
            " que son el modo de escritura, el nombre del archivo  y el número de replicas.\nLos modos de escritura son: "\
             "hasta_maxima_carga (a), secuencial (b), aleatorio (c) y primero_vacio (d).\nSe puede pasar tanto el nombre "\
             "del modo como su letra asociada, para mayor comodidad."
 
 def check(*args):
-    return masterNode.check_file(*args)
+    return masterNode.check_all()
 
 def example(*args):
     return masterNode.mapReduce(*args)

@@ -11,7 +11,7 @@ class Master:
     memoryBlock = None  # Tamanyo del bloque de memoria actual, expresado en numero de caracteres
 
     def __init__(self, slaveDB, memoryBlock):
-        self.database = ""
+        self.database = "0"
         self.slaveDB = slaveDB
         self.memoryBlock = memoryBlock
 
@@ -22,13 +22,17 @@ class Master:
     def get_key_length(self):
         return 6
 
+    def get_time_since_check(self):
+        var_list = self.database.split(" ")
+        return var_list[0]
+
     def get_key_char(self):
         return "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÑñ"
 
     def get_file_list(self):
         var_list = self.database.split(" ")
         if len(var_list) > 2:
-            return var_list[1::2]
+            return var_list[1::3]
         else:
             return []
 
@@ -40,15 +44,26 @@ class Master:
     def get_key_list(self):
         var_list = self.database.split(" ")
         if len(var_list) > 2:
-            return var_list[2::2]
+            return var_list[2::3]
         else:
             return []
 
-    def set_file_and_key_lists(self, file_list, key_list):
-        s = ""
-        list_tuple = zip(file_list, key_list)
-        for file, key in list_tuple:
-            s += " " + file + " " + key
+    def get_rep_dict(self):
+        # a diferencia de file y key, los elementos no son únicos, por eso devolveremos un diccionario {key: rep}
+        var_list = self.database.split(" ")
+        if len(var_list) > 2:
+            keys = self.get_key_list()
+            values = var_list[3::3]
+            return dict(zip(keys, values))
+        else:
+            return {}
+
+    def update_metadata(self,integrity_count, file_list, key_list, rep_dict):
+        s = integrity_count
+        rep_list = [rep_dict[item] for item in key_list]
+        list_tuple = zip(file_list, key_list, rep_list)
+        for file, key, rep in list_tuple:
+            s += " " + file + " " + key + " " + str(rep)
         self.database = s
 
     def get_next(self, string):
@@ -118,6 +133,7 @@ class Master:
         key_length = self.get_key_length()
         key_char = self.get_key_char()
         file_list = self.get_file_list()
+        rep_dict = self.get_rep_dict()
 
         # comprobamos que el modo de escritura sea correcto
         mode = args[0]
@@ -134,9 +150,13 @@ class Master:
         if args[1] in file_list:
             return "Error, ese texto ya está guardado"
 
+        # comprobamos que rep_num sea correcto
+        rep_num = int(args[2]) + 1
+        if rep_num < 0:
+            return "El número de réplicas no puede ser negativo"
+
         # comprobamos la cantidad de memoria
         # comprobamos que el número de archivos diferentes no es demasiado elevado
-        rep_num = int(args[2])
         if len(file_list) >= len(key_char):
             return "Error. Este simulador sólo puede almacenar " + str(len(key_char)) + " textos diferentes."
 
@@ -163,9 +183,10 @@ class Master:
                 key = char
                 break
         key_list.append(key)
+        rep_dict[key] = rep_num
 
-        # guardamos file_list y key_list
-        self.set_file_and_key_lists(file_list, key_list)
+        # guardamos file_list, key_list y rep_dict
+        self.update_metadata(str(int(self.get_time_since_check()) + 1) ,file_list, key_list, rep_dict)
 
         # dividimos el texto en bloques
         block_list = [texto[i:i + self.memoryBlock - key_length]
@@ -263,10 +284,11 @@ class Master:
             return False
 
     def erase(self, arg):
-        # necesitamos file_dict
+        # necesitamos metadatos
         key_length = self.get_key_length()
         key_char = self.get_key_char()
         file_list = self.get_file_list()
+        rep_dict = self.get_rep_dict()
         file = "".join(arg)
 
         # comprobamos si el archivo existe en el sistema
@@ -283,9 +305,10 @@ class Master:
             file_list.remove(file)
             key_list = self.get_key_list()
             key_list.remove(key_file)
+            rep_dict.pop(key_file)
 
-            # guardamos los nuevos file_list y key_list
-            self.set_file_and_key_lists(file_list, key_list)
+            # guardamos los nuevos file_list, key_list y rep_dict
+            self.update_metadata(self.get_time_since_check() ,file_list, key_list, rep_dict)
             return "Archivo borrado"
         else:
             return "Error en el borrado"
@@ -335,6 +358,20 @@ class Master:
                 frequency[char] = frequency[char] + 1
             else:
                 frequency[char] = 1
+        return list(frequency.items())
+
+    @staticmethod
+    def pair_count(database):
+        # si el texto tiene longitud impar, ignoramos el último carácter
+        if len(database) % 2 != 0:
+            database = database[:-1]
+        pairs = [database[i:i+2] for i in range(0, len(database))]
+        frequency = {}
+        for pair in pairs:
+            if pair in frequency:
+                frequency[pair] = frequency[pair] + 1
+            else:
+                frequency[pair] = 1
         return list(frequency.items())
 
     def mapReduce(self, arg):

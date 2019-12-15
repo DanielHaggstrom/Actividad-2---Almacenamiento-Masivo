@@ -406,8 +406,16 @@ class Master:
         frequency = {}
         words = database.split()
         for word in words:
-            if word[-1] == ".":
-                word = word[:-1]
+            aux = 0
+            while aux < 2:
+                aux = aux + 1
+                if len(word) > 0:
+                    if word[-1] == "." or word[-1] == "!" or word[-1] == "?" or word[-1] == "»" or word[-1] == "-" or word[-1] == "'" or word[-1] == '"' or word[-1] == ",":
+                        word = word[:-1]
+                        aux = 0
+                    elif word[0] == "¡" or word[0] == "¿" or word[0] == "-" or word[0] == "«" or word[0] == "'" or word[0] == '"':
+                        word = word[1:]
+                        aux = 0
             if word in frequency:
                 frequency[word] = frequency[word] + 1
             else:

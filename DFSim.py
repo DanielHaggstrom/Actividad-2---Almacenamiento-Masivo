@@ -43,9 +43,9 @@ def debug(*args):
     return ""
 
 def help(*args):
-    return "Los comandos son: escribir, leer, borrar, debug, ayuda, comprobar, reparar, contar_carácteres,"\
+    return "Los comandos son: escribir, leer, borrar, debug, ayuda, comprobar, reparar, contar_caracteres,"\
            "contar_pares, listar_parabras y salir.\nSalir, debug, comprobar, reparar, restabecer y ayuda no"\
-           "toman parámetros.\nLeer, borrar, contar_carácteres, contar_pares y listar_palabras toman un parámetro,"\
+           "toman parámetros.\nLeer, borrar, contar_caracteres, contar_pares y listar_palabras toman un parámetro,"\
            "el nombre del archivo sobre el que se quiere operar.\nEscribir toma tres, que son el modo de escritura,"\
            "el nombre del archivo  y el número de replicas.\nLos modos de escritura son: hasta_maxima_carga (a),"\
            "secuencial (b), aleatorio (c) y primero_vacio (d).\nSe puede pasar tanto el nombre del modo como su"\
@@ -75,7 +75,7 @@ commands = {
     "ayuda": help,
     "comprobar": check,
     "restablecer": rewrite,
-    "contar_carácteres": char_count,
+    "contar_caracteres": char_count,
     "contar_pares": pair_count,
     "listar_palabras": word_show
 }

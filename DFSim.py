@@ -43,17 +43,28 @@ def debug(*args):
     return ""
 
 def help(*args):
-    return "Los comandos son: escribir, leer, borrar, debug, ayuda, comprobar, reparar y salir.\nSalir, debug, comprobar, reparar y ayuda no toman parámetros." \
-           "\nLeer y borrar toman un parámetro, el nombre del archivo que se quiere leer o borrar.\nEscribir toma tres," \
-           " que son el modo de escritura, el nombre del archivo  y el número de replicas.\nLos modos de escritura son: "\
-            "hasta_maxima_carga (a), secuencial (b), aleatorio (c) y primero_vacio (d).\nSe puede pasar tanto el nombre "\
-            "del modo como su letra asociada, para mayor comodidad."
+    return "Los comandos son: escribir, leer, borrar, debug, ayuda, comprobar, reparar, contar_carácteres,"\
+           "contar_pares, listar_parabras y salir.\nSalir, debug, comprobar, reparar, restabecer y ayuda no"\
+           "toman parámetros.\nLeer, borrar, contar_carácteres, contar_pares y listar_palabras toman un parámetro,"\
+           "el nombre del archivo sobre el que se quiere operar.\nEscribir toma tres, que son el modo de escritura,"\
+           "el nombre del archivo  y el número de replicas.\nLos modos de escritura son: hasta_maxima_carga (a),"\
+           "secuencial (b), aleatorio (c) y primero_vacio (d).\nSe puede pasar tanto el nombre del modo como su"\
+           "letra asociada, para mayor comodidad."
 
 def check(*args):
     return masterNode.check_all()
 
-def example(*args):
-    return masterNode.mapReduce(*args)
+def char_count(*args):
+    return masterNode.mapReduce(0, *args[0])
+
+def pair_count(*args):
+    return masterNode.mapReduce(1, *args[0])
+
+def word_show(*args):
+    return masterNode.mapReduce(2, *args[0])
+
+def rewrite(*args):
+    return masterNode.rewrite()
 
 commands = {
     "salir": quit,
@@ -63,7 +74,10 @@ commands = {
     "debug": debug,
     "ayuda": help,
     "comprobar": check,
-    "ejemplo": example
+    "restablecer": rewrite,
+    "contar_carácteres": char_count,
+    "contar_pares": pair_count,
+    "listar_palabras": word_show
 }
 
 out = False
